@@ -1,7 +1,7 @@
 #include <vector>
+#include <tuple>
 #include <iostream>
 #include <random>
-#include <tuple>
 #include <cmath>
 #include <assert.h>
 #include <algorithm>
@@ -121,20 +121,21 @@ bool is_tabu(int step, vector<int>& tabu_table, int ep1, int ep2) {
 }
 
 void update_tabu(int step, vector<int>& tabu_table, int ep1, int ep2) {
+	--ep1;
+	--ep2;
 	tabu_table[ep1* tabu_N + ep2] = step;
 	tabu_table[ep2* tabu_N + ep1] = step;
 }
 
-std::tuple<Status, int> find_best(int step, vector<int>& tabu_table, vector<int>& left, int ep1, int ep2) {
+std::tuple<Status, int> find_best(vector<int>& left, int ep1, int ep2) {
 	// the only permitted operation: 
 	// spilt record1 into [record1_beg x] [y record1_end] || [ep1, ep2]
 	// get [record1_beg x, ep1 ep2] 
 	//     [y record1_end]
 	using std::make_tuple;
-	std::pair<int, size_t> tabu_best, normal_best;
-	tabu_best.first = normal_best.first = tabu_N;
-	tabu_best.second = normal_best.second = -1;
-	SelectEngine tabuSelect;
+	std::pair<int, size_t> normal_best;
+	normal_best.first = tabu_N;
+	normal_best.second = -1;
 	SelectEngine normSelect;
 
 
@@ -146,18 +147,12 @@ std::tuple<Status, int> find_best(int step, vector<int>& tabu_table, vector<int>
 				return make_tuple(Status::PerfectMatch, index);
 			}
 			auto new_pair = std::make_pair(y, index);
-			tabuSelect.random_update(tabu_best, new_pair);
-			if (!is_tabu(step, tabu_table, x, ep1)) {
-				normSelect.random_update(normal_best, new_pair);
-			}
+			normSelect.random_update(normal_best, new_pair);
 		}
 	}
 
 	if (normal_best.first == tabu_N) {
-		if (tabu_best.first == tabu_N) {
-			return make_tuple(Status::NoMatch, -1);
-		}
-		else return make_tuple(Status::TabuMatch, tabu_best.second);
+		return make_tuple(Status::NoMatch, -1);
 	}
 	else return make_tuple(Status::GoodMatch, normal_best.second);
 }
@@ -167,8 +162,8 @@ vector<int> tabu_insert(vector<int> raw, int N, int max) {
 	assert(N == max);
 	auto record1 = raw;
 	auto record2 = vector<int>(1, N);
-	constexpr int tabu_step = 100;
-	vector<int> tabu_table(max * tabu_N, -tabu_step * 2);
+	int tabu_step = N / 2;
+	//vector<int> tabu_table(max * tabu_N, -tabu_step * 2);
 	int step = 0;
 	constexpr int max_step = 100000;
 	while (step < max_step) {
@@ -210,7 +205,7 @@ vector<int> tabu_insert(vector<int> raw, int N, int max) {
 			auto[left_, right_] = extract(id);
 			auto& left = *left_;
 			auto& right = *right_;
-			auto[status, iter] = find_best(step, tabu_table, left, right.front(), right.back());
+			auto[status, iter] = find_best(left, right.front(), right.back());
 			if (status == Status::NoMatch || status > exec_status) {
 				continue;
 			}
@@ -235,7 +230,7 @@ vector<int> tabu_insert(vector<int> raw, int N, int max) {
 			auto[left_, right_] = extract(exec_id);
 			auto left = *left_;
 			auto right = *right_;
-			auto[status, iter] = find_best(step, tabu_table, left, right.front(), right.back());
+			auto[status, iter] = find_best(left, right.front(), right.back());
 			assert(is_square(left[iter] + right.front()));
 			assert(iter >= 0 && iter < left.size() - 1);
 			record1 = vector<int>(left.begin() + iter + 1, left.end());
@@ -245,6 +240,7 @@ vector<int> tabu_insert(vector<int> raw, int N, int max) {
 	}
 	return vector<int>();
 }
+
 int main() {
 	// generate seed using brute force
 	auto vec = search(40);
@@ -262,7 +258,7 @@ int main() {
 			break;
 		}
 		assert(check_arr(vec));
-		if (i % 100 == 0) {
+		if (i % 500 == 0) {
 			cout << std::endl;
 			cout << i << ":";
 			for (auto x : vec) {
@@ -270,8 +266,6 @@ int main() {
 			}
 			cout << std::endl;
 		}
-
 	}
-	system("pause");
 	return 0;
 }
