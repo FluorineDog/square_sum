@@ -52,5 +52,6 @@ In most situations, there are many valid moves at step 4, and we just pick one r
 After several iterations, we can always grow the valid permutation of _[1...(N-1)]_ into a valid permutation of _[1...N]_. 
 
 Applying this algorithm repeatedly, we can get the solution to an arbitarily large _N_. 
-Though in theory termination is not guaranteed, in practice it is surprisingly fast. 
+
+Though in theory termination of the algorithm is not guaranteed, in practice it is surprisingly fast. 
 Benchmark results show that we can grow _N_ into 40000 in seconds, way faster than backtracing algorithms. 
