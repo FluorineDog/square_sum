@@ -43,7 +43,7 @@ Thus, let _A' = concat(C, B), B' = D_, we got a new pair of valid arrays. After 
 
 Finally, check if any endpoint of _A_ and any endpoint of _B_ can sum to a square number. 
 If so, concat them accordingly, and return the result. 
-if not, go on for next iteration. 
+if not, go on for the next iteration. 
 
 At step 4, chances are there is no valid move, e.g., _A_ is too small. 
 In that case, we can do another combination of step 1/2/3. 
