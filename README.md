@@ -42,7 +42,7 @@ and won't break the invariant. After a random combination of that, we
 Thus, let _A' = concat(C, B), B' = D_, we got a new pair of valid arrays. After this operation, we keep the invariant. 
 
 Finally, check if any endpoint of _A_ and any endpoint of _B_ can sum to a square number. 
-If so, concat them accordingly, and return the result. 
+If so, concatenate them accordingly, and return the result. 
 if not, go on for the next iteration. 
 
 At step 4, chances are there is no valid move, e.g., _A_ is too small. 
